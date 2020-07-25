@@ -4,12 +4,10 @@ import lottery from './lottery';
 import web3 from './web3';
 
 class App extends Component {
-  state = {
-    manager: '',
-    players: '', 
-    balance: '', 
-    value: ''
-  }; 
+  
+  state = {manager: '', players: [], balance: '', value: '', message: ''};
+
+
   async componentDidMount() {
     const manager = await lottery.methods.manager().call();
     const players  = await lottery.methods.getPlayers().call();
@@ -31,6 +29,15 @@ class App extends Component {
     })
 
     this.setState({ message: "Txn Completed"});
+  }
+
+  pickWinner = async ()=> {
+    const accounts = await web3.eth.getAccounts();
+    this.setState({message: "Picking Winner...."});
+    await lottery.methods.pickWinner().send({from: accounts[0]});
+    this.setState({message: "Winner has been picked and Awarded with money"});
+
+    this.forceUpdate();
   }
 
   render() {
@@ -56,7 +63,13 @@ class App extends Component {
         </form>
 
         <br/>
-        <h2>{this.state.message}</h2>
+        <h2>{this.state.message}</h2><br/>
+     
+      <hr/>
+        <h3>Pick Winner</h3><br/>
+        <button onClick={this.pickWinner}>Pick Winner</button>
+      <hr/>
+
       </div>
     
     );
